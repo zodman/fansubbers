@@ -1,0 +1,4 @@
+nyaa
+git+https://github.com/wackou/guessit.git
+git+https://github.com/moogar0880/PyTrakt.git
+webscraping
