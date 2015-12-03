@@ -37,10 +37,19 @@ def search_trakt(trackt_slug):
     from trakt.tv import TVShow
     print "search"
     try:
-        tvshow = TVShow(trackt_slug)
+        return TVShow(trackt_slug)
     except NotFoundException:
-        tvshow = Movie(trackt_slug)
-    return tvshow
+        try:
+            return Movie(trackt_slug)
+        except NotFoundException:
+            return None
+def trakt_images(trakt_slug):
+    import pprint
+    res = search_trakt(trakt_slug)
+    if res:
+        pprint.pprint(res.images)
+        return res.images.get("thumb")
+    return []
 
 def mal_search(mal_title, mal_id=False):
     cookies = {"incap_ses_224_81958":"P6tYbUr7VH9V6shgudAbA1g5FVYAAAAAyt7eDF9npLc6I7roc0UIEQ=="}

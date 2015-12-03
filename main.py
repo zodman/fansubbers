@@ -1,5 +1,6 @@
 from nyaa import nyaa
 from guessit import guessit
+from utils import trakt_images
 
 nyaa_users = {
 u"PuyaSubs!":239789,
@@ -12,11 +13,12 @@ def fetch_fansub(nyaa_result):
     anime_season = anime_info.get("season")
     anime_chapter = anime_info.get("episode", anime_info.get("episode_title"))
     fansub = anime_info.get("release_group")
-    print anime_info
     if anime_season:
-        print "[{}] {} - s{}x{}".format(fansub,anime_title, anime_season, anime_chapter)
+        print "[{}] \"{}\" - s{}x{}".format(fansub,anime_title, anime_season, anime_chapter)
     else:
-        print "[{}] {} - {}".format(fansub,anime_title,  anime_chapter)
+        print "[{}] \"{}\" - {}".format(fansub,anime_title,  anime_chapter)
+    tvshow = trakt_images(anime_title)
+
 
 
 def main():
