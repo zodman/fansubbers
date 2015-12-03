@@ -1,6 +1,5 @@
 from nyaa import nyaa
 from guessit import guessit
-import pprint
 
 nyaa_users = {
 u"PuyaSubs!":239789,
