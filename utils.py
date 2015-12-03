@@ -35,7 +35,6 @@ def search_trakt(trackt_slug):
     from trakt.errors import NotFoundException
     from trakt.movies import Movie
     from trakt.tv import TVShow
-    print "search"
     try:
         return TVShow(trackt_slug)
     except NotFoundException:
@@ -48,8 +47,8 @@ def trakt_images(trakt_slug):
     res = search_trakt(trakt_slug)
     if res:
         pprint.pprint(res.images)
-        return res.images.get("thumb")
-    return []
+        return res.images
+    return {}
 
 def mal_search(mal_title, mal_id=False):
     cookies = {"incap_ses_224_81958":"P6tYbUr7VH9V6shgudAbA1g5FVYAAAAAyt7eDF9npLc6I7roc0UIEQ=="}
@@ -71,13 +70,24 @@ def mal_search(mal_title, mal_id=False):
     res = xmltodict.parse(content)
     return res.get("entry")
 
+
+def search_animenetwork(title):
+    base_url="http://cdn.animenewsnetwork.com/encyclopedia/api.xml"
+    params = {'anime':"~"+title}
+    response = requests.get(base_url, params=params)
+    animes = xpath.search(response.content,"//anime")
+    for i in animes:
+        images = xpath.search(i, "//info/img/@src")
+        summary = xpath.get(i, "//info[@type='Plot Summary']")
+        genres = xpath.search(i, "//info[@type='Genres']")
+
+
 if __name__=="__main__":
     import os
     if not os.path.exists("/home/zodman/.pytrakt.json"):
         start_trakt("zodman")
     title = "Plastic Memories"
-    print search_trakt(title)
-    mal = mal_search(title)
-    print translate(mal.get("synopsis"), "es")
-
-
+    #print search_trakt(title)
+    #mal = mal_search(title)
+    #print translate(mal.get("synopsis"), "es")
+    search_animenetwork(title)
