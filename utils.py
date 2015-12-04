@@ -8,7 +8,8 @@ import requests
 import xmltodict
 import urllib2
 from urllib import urlencode
-
+import requests_cache
+requests_cache.install_cache('utils')
 
 my_client_id = "f4c5e2bc17fe61f01900a23eb41cead3e412e51eddc2177dbc8b88625778cc0b"
 my_client_secret = "535bb4e0657f512503c0a18b302fe1a132295f56d8454c3f68f693980d0bcfaa"
@@ -43,10 +44,8 @@ def search_trakt(trackt_slug):
         except NotFoundException:
             return None
 def trakt_images(trakt_slug):
-    import pprint
     res = search_trakt(trakt_slug)
     if res:
-        pprint.pprint(res.images)
         return res.images
     return {}
 
@@ -63,12 +62,17 @@ def mal_search(mal_title, mal_id=False):
     if mal_id is not False:
         for e in xpath.search(content,"//entry"):
             if  mal_id in e:
-                content = xpath.get(e, "//anime")
+                content = xpath.get(e, "//anime/entry")
                 break
     else:
-        content = xpath.get(content, "//anime")
-    res = xmltodict.parse(content)
-    return res.get("entry")
+        content = xpath.get(content, "//anime/entry")
+    english_title = xpath.get(content, '//english')
+    title = xpath.get(content, '//title')
+    synonyms = xpath.get(content, '//synonyms')
+    id = xpath.get(content, "//id")
+    return {'title':title, 'english_title':english_title, 'synonyms': synonyms,
+            'id':id
+            }
 
 
 def search_animenetwork(title):
@@ -76,11 +80,19 @@ def search_animenetwork(title):
     params = {'anime':"~"+title}
     response = requests.get(base_url, params=params)
     animes = xpath.search(response.content,"//anime")
+    l = []
     for i in animes:
+        id = xpath.search(i, "./@id").pop()
         images = xpath.search(i, "//info/img/@src")
         summary = xpath.get(i, "//info[@type='Plot Summary']")
         genres = xpath.search(i, "//info[@type='Genres']")
-
+        openings = xpath.search(i, "//info[@type='Opening Theme']")
+        endings = xpath.search(i, "//info[@type='Ending Theme']")
+        d={'summary': summary, 'images':images, 'genres': genres,
+                'openings': openings,'endings': endings,'id':id
+            }
+        l.append(d)
+    return l
 
 if __name__=="__main__":
     import os

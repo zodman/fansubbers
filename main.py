@@ -1,6 +1,6 @@
 from nyaa import nyaa
 from guessit import guessit
-from utils import trakt_images
+from utils import trakt_images, search_animenetwork, mal_search
 
 nyaa_users = {
 u"PuyaSubs!":239789,
@@ -13,12 +13,18 @@ def fetch_fansub(nyaa_result):
     anime_season = anime_info.get("season")
     anime_chapter = anime_info.get("episode", anime_info.get("episode_title"))
     fansub = anime_info.get("release_group")
-    if anime_season:
-        print "[{}] \"{}\" - s{}x{}".format(fansub,anime_title, anime_season, anime_chapter)
-    else:
-        print "[{}] \"{}\" - {}".format(fansub,anime_title,  anime_chapter)
     tvshow = trakt_images(anime_title)
-
+    mal = mal_search(anime_title)
+    mal_english_title = mal.get("english_title")
+    mal_title = mal.get("title")
+    mal_syno = mal.get("synonyms").split(";")
+    res = []
+    for i in [anime_title, mal_english_title, mal_title] + mal_syno:
+        res = search_animenetwork(i)
+        print (i,res)
+        if res:
+            print res
+            return res
 
 
 def main():
